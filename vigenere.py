@@ -5,7 +5,7 @@ def encode(plaintext, key):
 	plaintext = plaintext.upper()
 	key = key.upper()
 
-	# Repeat key until its length matches the length of the message. Preserve whitespace.
+	# Repeat key until its length matches the length of the message. Preserve whitespace and punctuation.
 	keystream = ""
 	i = 0
 	for letter in plaintext:
@@ -37,7 +37,7 @@ def decode(ciphertext, key):
 	# Make key uppercase
 	key = key.upper()
 
-	# Repeat key until its length matches the length of the message. Preserve whitespace.
+	# Repeat key until its length matches the length of the message. Preserve whitespace and punctuation.
 	keystream = ""
 	i = 0
 	for letter in ciphertext:
