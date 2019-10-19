@@ -1,75 +1,78 @@
 alphabet = list("abcdefghijklmnopqrstuvwxyz")
 
 def vigenere(inputString, mode, key, preserveCaps=True, preservePunctuation=True):
-	"""
+	"""Encrypt a message using a Vigenere cipher
+
 	The Vigenere cipher is a polyalphabetic substitution cipher that shifts
 	the alphabet by some amount determined by a key per each  plaintext
 	character.
 
-	The vigenere cipher first expands the key into a keystream to match the
-	length of the plaintext. For each pair of plaintext and keystream characters
-	(when encoding), the cipher shifts the substitution alphabet by the position
-	of the keystream character in the  original alphabet and applies the shifted
-	alphabet to the plaintext character.
+	The Vigenere cipher iterates over each character in the plaintext together
+	with each character in the key (repeating the key as necessary).
+	At each step, the cipher shifts the alphabet until the first letter of the
+	cipher alphabet starts with this letter of the key. Essentially, the
+	cipher uses a different Cesar cipher for each plaintext character and uses
+	the key to determine which Cesar cipher to map to. Traditionally, a
+	Vigenere table was used to encode this by hand (see below).
+
+	Abridged Vigenere table:
+	key character	| 	cipher alphabet
+	a 				| 	abc...xyz
+	b 				| 	bcd...yza
+	c 				| 	cde...zab
+	...				| 	...
+	z 				| 	zab...wxy
 
 	Example:
 		Plaintext:	ATTACKATDAWN
-		Key:		AZTEC
-		Keystream:	AZTECAZTECAZ
-		Ciphertext:	ASMEEKZMHCWM
+		Key:		LEMON
+		Ciphertext:	LXFOPVEFRNHR
 
-	In the above example, the key AZTEC was expanded to be 12 characters long.
-	For the first character encoding, the alphabet was shifted by A, which
-	evaluates to 0 (or 26 depending on how you look at it) shifts to the right.
-	The second character Z shifts by 25 places, the third character T shifts by
-	20 places, and so on.
+	Args:
+		inputString (str): plaintext if encrypting or ciphertext if decrypting
+		mode (str): 'e' for encryption or 'd' for decryption
+		key (str): a password of sorts used to encrypt the message
+		preserveCaps (bool): flag to preserve capitalization (default: True)
+		preservePunctuation (bool): flag to preserve non-characters, including
+			spaces and numbers (default: True)
 
-	Key character 	number of shifts
-	A 				0
-	B 				1
-	C 				2
-	...
-	Z 				25
-
-	Inputs:
-		inputString: plaintext if encrypting or ciphertext if decrypting
-		mode: 'e' for encryption or 'd' for decryption
-		key: a string used to encrypt the message
-		preserveCaps: boolean to preserve capitalization (default: True)
-		preservePunctuation: boolean to preserve punctuation including spaces
-		(default: True)
-
-	Outputs:
-		Returns a plaintext string if [mode] is 'd' or a ciphertext string if
-		[mode] is 'e'
+	Returns:
+		str: plaintext if [mode] is 'd' or ciphertext if [mode] is 'e'
 	"""
+
 	# Sanitize inputs
 	key = key.lower()
 	key.replace(" ", "")
 	if mode not in ['e', 'd']:
 		raise Exception("'mode' must be either 'e' for encryption or 'd' for decryption")
 
-	# Initialize variables
-	keystreamCounter = -1
+	# Initialize local variables
+	keystreamCounter = 0
 	outString = ""
 
-	# Read input string. Iterate on each character. Increment counter at each loop.
+	# Iterate on each character of the input string.
 	for inputChar in inputString:
+		# If this character is in the alphabet, encode it
 		if inputChar.lower() in alphabet:
-			keystreamCounter += 1
-			# Determine the number of positions to move the plaintext character given the key
-			numMoves = alphabet.index(key[keystreamCounter % len(key)])
-			# Move the plaintext character
-			if mode == 'e':
-				outputChar = alphabet[(alphabet.index(inputChar.lower()) + numMoves) % len(alphabet)]
-			elif mode == 'd':
-				outputChar = alphabet[(alphabet.index(inputChar.lower()) - numMoves) % len(alphabet)]
+			# Find the number of positions to move and the starting position
+			keyChar = key[keystreamCounter % len(key)]
+			numMoves = alphabet.index(keyChar)
+			startPosition = alphabet.index(inputChar.lower())
 
-			# Preserve caps if specified
+			# Encode or decode the input character by shifting the alphabet
+			if mode == 'e': # encode
+				outputChar = alphabet[(startPosition + numMoves) % len(alphabet)]
+			elif mode == 'd': # decode
+				outputChar = alphabet[(startPosition - numMoves) % len(alphabet)]
+
+			# Preserve capitalization if specified
 			if inputChar.isupper() & preserveCaps:
 				outputChar = outputChar.upper()
 
-		# Preserve punctutation if specified
+			# Increment counter on each loop.
+			keystreamCounter += 1
+
+		# If character is not in alphabet, preserve punctutation if specified
 		elif preservePunctuation:
 			outputChar = inputChar
 
@@ -82,9 +85,3 @@ def vigenere(inputString, mode, key, preserveCaps=True, preservePunctuation=True
 
 	# Write to file
 	return(outString)
-
-# Test script
-# inputString = open('plaintext.txt', 'r').read()
-inputString = "ATTACKATDAWN"
-outputString = vigenere(inputString, 'e', 'AZTEC')
-print(outputString)
