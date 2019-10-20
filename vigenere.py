@@ -1,6 +1,6 @@
 alphabet = list("abcdefghijklmnopqrstuvwxyz")
 
-def vigenere(inputString, mode, key, preserveCaps=True, preservePunctuation=True):
+def vigenere(inputString, mode, key):
 	"""Encrypt a message using a Vigenere cipher
 
 	The Vigenere cipher is a polyalphabetic substitution cipher that shifts
@@ -32,9 +32,6 @@ def vigenere(inputString, mode, key, preserveCaps=True, preservePunctuation=True
 		inputString (str): plaintext if encrypting or ciphertext if decrypting
 		mode (str): 'e' for encryption or 'd' for decryption
 		key (str): a password of sorts used to encrypt the message
-		preserveCaps (bool): flag to preserve capitalization (default: True)
-		preservePunctuation (bool): flag to preserve non-characters, including
-			spaces and numbers (default: True)
 
 	Returns:
 		str: plaintext if [mode] is 'd' or ciphertext if [mode] is 'e'
@@ -65,20 +62,16 @@ def vigenere(inputString, mode, key, preserveCaps=True, preservePunctuation=True
 			elif mode == 'd': # decode
 				outputChar = alphabet[(startPosition - numMoves) % len(alphabet)]
 
-			# Preserve capitalization if specified
-			if inputChar.isupper() & preserveCaps:
+			# Preserve capitalization
+			if inputChar.isupper():
 				outputChar = outputChar.upper()
 
 			# Increment counter on each loop.
 			keystreamCounter += 1
 
-		# If character is not in alphabet, preserve punctutation if specified
-		elif preservePunctuation:
-			outputChar = inputChar
-
-		# Otherwise, do nothing
+		# If character is not in alphabet, preserve punctutation
 		else:
-			outputChar = ""
+			outputChar = inputChar
 
 		# Append to output string
 		outString += outputChar

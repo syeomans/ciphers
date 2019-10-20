@@ -1,54 +1,51 @@
-'''
-Substitution cipher that shifts the alphabet by some number of spaces.
-'''
+alphabet = list("abcdefghijklmnopqrstuvwxyz")
 
-import string
-alphabet = list(string.ascii_uppercase)
+def caesar(inputString, mode, numShifts):
+	"""Substitution cipher that shifts the alphabet by some number of spaces.
 
-def encrypt(message, offset=1):
+	Example:
+		Plaintext:	We are routed, fall back!
+		Shifts:		1
+		Ciphertext: Xf bsf spvufe, gbmm cbdl!
 
-    # Convert text to a list of uppercase characters
-    message = list(message.upper())
+	Args:
+		inputString (str): plaintext if encrypting or ciphertext if decrypting
+		mode (str): 'e' for encryption or 'd' for decryption
+		numShifts (str): the number of times to shift the alphabet
 
-    # Walk the list and shift each character by the specified offset
-    ciphertext = ''
-    for i in range(0,len(message)):
-        if message[i] in alphabet: # Only change letters
-            # Get the position of this character in the alphabet (ex: A=0, B=1...)
-            plaintextIndex = alphabet.index(message[i])
-            # Shift this index by the offset, wrapping around to 0 if needed
-            ciphertextIndex = (plaintextIndex + offset) % 26
-            # Put that character in the ciphertext string
-            ciphertext += alphabet[ciphertextIndex]
-        else: # Don't change punctuation and stuff
-            ciphertext += message[i]
+	Returns:
+		str: plaintext if [mode] is 'd' or ciphertext if [mode] is 'e'
+	"""
 
-    return(ciphertext)
+	# Sanitize inputs
+	if mode not in ['e', 'd']:
+		raise Exception("'mode' must be either 'e' for encryption or 'd' for decryption")
 
-def decrypt(message, offset=1):
+	# Initialize local variables
+	outString = ""
 
-    # Convert text to a list of uppercase characters
-    message = list(message.upper())
+	# Iterate on each character of the input string.
+	for inputChar in inputString:
 
-    # Walk the list and shift each character by the specified offset
-    plaintext = ''
-    for i in range(0,len(message)):
-        if message[i] in alphabet: # Only change letters
-            # Get the position of this character in the alphabet (ex: A=0, B=1...)
-            ciphertextIndex = alphabet.index(message[i])
-            # Shift this index by the offset, wrapping around to 0 if needed
-            plaintextIndex = (ciphertextIndex - offset + 26) % 26
-            # Put that character in the ciphertext string
-            plaintext += alphabet[plaintextIndex]
-        else: # Don't change punctuation and stuff
-            plaintext += message[i]
+		# If this character is in the alphabet, encode it
+		if inputChar.lower() in alphabet:
+			# Find starting position of the input character
+			startPosition = alphabet.index(inputChar.lower())
+			# Encode or decode the input character by shifting the alphabet
+			if mode == 'e': # encode
+				outputChar = alphabet[(startPosition + numShifts) % len(alphabet)]
+			elif mode == 'd': # decode
+				outputChar = alphabet[(startPosition - numShifts) % len(alphabet)]
+			# Preserve capitalization
+			if inputChar.isupper():
+				outputChar = outputChar.upper()
 
-    return(plaintext)
+		# If character is not in alphabet, preserve punctutation
+		else:
+			outputChar = inputChar
 
-# # Test script
-# message = "Hello, world!"
-# offset = 10
-# ciphertext = encrypt(message, offset)
-# print(ciphertext)
-# plaintext = decrypt(ciphertext, offset)
-# print(plaintext)
+		# Append to output string
+		outString += outputChar
+
+	# Write to file
+	return(outString)
